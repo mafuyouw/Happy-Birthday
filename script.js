@@ -3,6 +3,12 @@
    All editable personal data lives in birthdayData below.
    ================================================================= */
 
+// Helper function to get the base URL for assets
+function getAssetPath(path) {
+  const basePath = window.location.pathname.includes('/Happy-Birthday/') ? '/Happy-Birthday/' : '/';
+  return basePath + path;
+}
+
 const birthdayData = {
   girlfriendName: "Mila",
   senderName: "Annelys",
@@ -24,19 +30,23 @@ const birthdayData = {
   },
 
   // hero photo (the birthday girl). Falls back to a soft placeholder if missing.
-  heroPhoto: "assets/images/hero.jpg",
+  get heroPhoto() { return getAssetPath("assets/images/hero.jpg"); },
 
-  playlist: [
-    { title: "I Still Love You", artist: "TheOvertunes", audio: "assets/music/song-1.mp3", cover: "assets/images/cover-1.jpg" }
-    // add more: { title:"…", artist:"…", audio:"assets/music/song-2.mp3", cover:"assets/images/cover-2.jpg" }
-  ],
+  get playlist() {
+    return [
+      { title: "I Still Love You", artist: "TheOvertunes", audio: getAssetPath("assets/music/song-1.mp3"), cover: getAssetPath("assets/images/cover-1.jpg") }
+      // add more: { title:"…", artist:"…", audio: getAssetPath("assets/music/song-2.mp3"), cover: getAssetPath("assets/images/cover-2.jpg") }
+    ];
+  },
 
   // maximum 3 photos
-  photos: [
-    { src: "assets/images/photo-1.jpg", caption: "First photobooth kitaa", date: "Rabu, 15 April 2026", sticker: "star" },
-    { src: "assets/images/photo-2.jpg", caption: "First date ke pantaii", date: "Sabtu, 23 Mei 2026", sticker: "flower" },
-    { src: "assets/images/photo-3.jpg", caption: "Foto bareng terlucuuuu", date: "Jumat, 12 Juni 2026", sticker: "heart" }
-  ],
+  get photos() {
+    return [
+      { src: getAssetPath("assets/images/photo-1.jpg"), caption: "First photobooth kitaa", date: "Rabu, 15 April 2026", sticker: "star" },
+      { src: getAssetPath("assets/images/photo-2.jpg"), caption: "First date ke pantaii", date: "Sabtu, 23 Mei 2026", sticker: "flower" },
+      { src: getAssetPath("assets/images/photo-3.jpg"), caption: "Foto bareng terlucuuuu", date: "Jumat, 12 Juni 2026", sticker: "heart" }
+    ];
+  },
 
   // maximum 3 wishes, each tied to a floating object
   wishes: [
@@ -89,11 +99,11 @@ function imgWithFallback(imgEl, src, label) {
 
 /* ============ floating-object SVGs (wishes / game / vouchers) ============ */
 const OBJECT_SVG = {
-  balloon: `<svg viewBox="0 0 100 130"><path d="M50 8C28 8 18 26 18 44c0 22 18 38 32 44 14-6 32-22 32-44C82 26 72 8 50 8z" fill="#8FD3FF"/><path d="M50 8C40 8 34 26 36 46" stroke="#fff" stroke-width="4" fill="none" opacity=".6"/><path d="M50 92l-4 8h8z" fill="#8FD3FF"/><path d="M50 100c0 8 6 8 6 16s-6 6-6 14" stroke="#66869B" stroke-width="2" fill="none"/></svg>`,
+  balloon: `<svg viewBox="0 0 100 130"><path d="M50 8C28 8 18 26 18 44c0 22 18 38 32 44 14-6 32-22 32-44C82 26 72 8 50 8z" fill="#8FD3FF"/><path d="M50 8C40 8 34 26 36 46" stroke="#fff" stroke-width="2"/><path d="M50 8C60 8 66 26 64 46" stroke="#fff" stroke-width="2"/></svg>`,
   star: `<svg viewBox="0 0 100 100"><path d="M50 6l11 27 29 2-22 19 7 28-25-15-25 15 7-28L10 35l29-2z" fill="#9ad8ff" stroke="#fff" stroke-width="2"/></svg>`,
-  gift: `<svg viewBox="0 0 100 100"><rect x="14" y="40" width="72" height="48" rx="6" fill="#8FD3FF"/><rect x="10" y="30" width="80" height="16" rx="5" fill="#a7deff"/><rect x="44" y="30" width="12" height="58" fill="#fff"/><path d="M50 30C36 14 22 28 50 30 78 28 64 14 50 30" fill="#fff"/></svg>`,
+  gift: `<svg viewBox="0 0 100 100"><rect x="14" y="40" width="72" height="48" rx="6" fill="#8FD3FF"/><rect x="10" y="30" width="80" height="16" rx="5" fill="#a7deff"/><rect x="44" y="30" width="12" height="58" fill="#8FD3FF"/><circle cx="50" cy="36" r="6" fill="#a7deff"/></svg>`,
   crown: `<svg viewBox="0 0 100 100"><path d="M16 70l-6-34 22 16 18-28 18 28 22-16-6 34z" fill="#ffd76a" stroke="#fff" stroke-width="2"/><rect x="16" y="70" width="68" height="12" rx="3" fill="#ffcf4d"/></svg>`,
-  flower: `<svg viewBox="0 0 100 100"><g fill="#bfe7ff"><ellipse cx="50" cy="28" rx="14" ry="20"/><ellipse cx="72" cy="50" rx="20" ry="14"/><ellipse cx="50" cy="72" rx="14" ry="20"/><ellipse cx="28" cy="50" rx="20" ry="14"/></g><circle cx="50" cy="50" r="11" fill="#fff"/></svg>`,
+  flower: `<svg viewBox="0 0 100 100"><g fill="#bfe7ff"><ellipse cx="50" cy="28" rx="14" ry="20"/><ellipse cx="72" cy="50" rx="20" ry="14"/><ellipse cx="50" cy="72" rx="14" ry="20"/><ellipse cx="28" cy="50" rx="20" ry="14"/><circle cx="50" cy="50" r="12" fill="#fff"/></g></svg>`,
   ribbon: `<svg viewBox="0 0 100 100"><path d="M50 40C34 24 18 40 50 44 82 40 66 24 50 40z" fill="#8FD3FF"/><path d="M50 44l-16 40 16-12 16 12z" fill="#a7deff"/><circle cx="50" cy="42" r="6" fill="#fff"/></svg>`,
   heart: `<svg viewBox="0 0 100 100"><path d="M50 84S16 62 16 38C16 25 26 18 36 20c7 1 12 7 14 11 2-4 7-10 14-11 10-2 20 5 20 18 0 24-34 46-34 46z" fill="#9ad8ff"/></svg>`
 };
@@ -681,9 +691,10 @@ function runSurprise() {
   // photo slideshow
   const photos = Array.from({ length: 6 }, (_, i) => {
     const n = i + 4;
-    const match = birthdayData.photos.find(ph => new RegExp(`photo-${n}\\.(?:jpg|jpeg|png|webp)$`, "i").test(ph.src));
+    const photoList = birthdayData.photos;
+    const match = photoList.find(ph => new RegExp(`photo-${n}\\.(?:jpg|jpeg|png|webp)$`, "i").test(ph.src));
     return {
-      src: match?.src || `assets/images/photo-${n}.jpg`,
+      src: match?.src || getAssetPath(`assets/images/photo-${n}.jpg`),
       caption: match?.caption || `Photo ${n}`,
       date: match?.date || ""
     };
