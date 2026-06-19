@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A little digital birthday gift, made with love." />
+  <meta name="theme-color" content="#EAF8FF" />
+  <title>Happy Birthday</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============ DECORATIVE FLORAL BACKGROUND (fixed, behind everything) ============ -->
+  <div class="bg-floral" aria-hidden="true">
+    <div class="bg-blob bg-blob--1"></div>
+    <div class="bg-blob bg-blob--2"></div>
+    <div class="bg-blob bg-blob--3"></div>
+    <svg class="bg-flower bg-flower--tl" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-spray"/></svg>
+    <svg class="bg-flower bg-flower--br" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-spray"/></svg>
+    <svg class="bg-flower bg-flower--tr" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-single"/></svg>
+    <svg class="bg-flower bg-flower--bl" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-single"/></svg>
+  </div>
+
+  <!-- Floating petals layer (JS-populated) -->
+  <div class="petals-layer" id="petalsLayer" aria-hidden="true"></div>
+
+  <!-- Global confetti / fireworks canvas -->
+  <canvas id="fxCanvas" class="fx-canvas" aria-hidden="true"></canvas>
+
+  <!-- ============ SVG SYMBOL DEFS (reusable icons & flowers) ============ -->
+  <svg width="0" height="0" class="svg-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="flower-single" viewBox="0 0 200 200">
+        <g fill="currentColor">
+          <ellipse cx="100" cy="58" rx="20" ry="30"/>
+          <ellipse cx="142" cy="100" rx="30" ry="20"/>
+          <ellipse cx="100" cy="142" rx="20" ry="30"/>
+          <ellipse cx="58" cy="100" rx="30" ry="20"/>
+          <circle cx="100" cy="100" r="16" opacity="0.7"/>
+        </g>
+      </symbol>
+      <symbol id="flower-spray" viewBox="0 0 200 200">
+        <g fill="currentColor">
+          <g transform="translate(60 60) scale(.6)">
+            <ellipse cx="100" cy="58" rx="20" ry="30"/><ellipse cx="142" cy="100" rx="30" ry="20"/>
+            <ellipse cx="100" cy="142" rx="20" ry="30"/><ellipse cx="58" cy="100" rx="30" ry="20"/>
+            <circle cx="100" cy="100" r="16" opacity="0.7"/>
+          </g>
+          <g transform="translate(110 100) scale(.42)">
+            <ellipse cx="100" cy="58" rx="20" ry="30"/><ellipse cx="142" cy="100" rx="30" ry="20"/>
+            <ellipse cx="100" cy="142" rx="20" ry="30"/><ellipse cx="58" cy="100" rx="30" ry="20"/>
+            <circle cx="100" cy="100" r="16" opacity="0.7"/>
+          </g>
+          <path d="M70 120 Q90 150 130 150" stroke="currentColor" stroke-width="4" fill="none" opacity="0.5"/>
+        </g>
+      </symbol>
+      <symbol id="ic-home" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M3 11l9-7 9 7M5 10v9a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1v-9"/></symbol>
+      <symbol id="ic-gallery" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="10" r="1.5" fill="currentColor"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M5 17l4.5-4 3 2.5L16 12l3 3"/></symbol>
+      <symbol id="ic-wish" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M12 3l2.2 4.8L19 9l-3.5 3.4.8 5L12 14.8 7.7 17.4l.8-5L5 9l4.8-1.2z"/></symbol>
+      <symbol id="ic-game" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M7 11v2M6 12h2M15.5 11.5h.01M18 13.5h.01"/></symbol>
+      <symbol id="ic-letter" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M3.5 6.5L12 13l8.5-6.5"/></symbol>
+      <symbol id="ic-gift" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M3 13h18M12 9v12M12 9S9.5 4.5 7.5 6 9 9 12 9zM12 9s2.5-4.5 4.5-3S15 9 12 9z"/></symbol>
+      <symbol id="ic-surprise" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/><circle cx="12" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+      <symbol id="ic-invite" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M8 9h8M8 13h6"/></symbol>
+      <symbol id="ic-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M3 9h18M8 3v4M16 3v4"/></symbol>
+      <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M12 7v5l3 2"/></symbol>
+      <symbol id="ic-location" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+      <symbol id="ic-dress" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M9 3l3 3 3-3M9 3L7 6l1 3-2 8a3 3 0 0 0 3 4h6a3 3 0 0 0 3-4l-2-8 1-3-2-3"/></symbol>
+      <symbol id="ic-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z"/></symbol>
+      <symbol id="ic-pause" viewBox="0 0 24 24"><path fill="currentColor" d="M7 5h3v14H7zM14 5h3v14h-3z"/></symbol>
+      <symbol id="ic-prev" viewBox="0 0 24 24"><path fill="currentColor" d="M7 5h2v14H7zM20 5v14L9 12z"/></symbol>
+      <symbol id="ic-next" viewBox="0 0 24 24"><path fill="currentColor" d="M15 5h2v14h-2zM4 5l11 7L4 19z"/></symbol>
+      <symbol id="ic-volume" viewBox="0 0 24 24"><path fill="currentColor" d="M4 9v6h4l5 4V5L8 9z"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M16 9a4 4 0 0 1 0 6M18.5 7a7 7 0 0 1 0 10"/></symbol>
+      <symbol id="ic-mute" viewBox="0 0 24 24"><path fill="currentColor" d="M4 9v6h4l5 4V5L8 9z"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M17 9l4 6M21 9l-4 6"/></symbol>
+      <symbol id="ic-close" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></symbol>
+      <symbol id="ic-heart" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21s-7-4.6-9.3-9C1 8.6 2.5 5 6 5c2 0 3.2 1.2 4 2.3C10.8 6.2 12 5 14 5c3.5 0 5 3.6 3.3 7-2.3 4.4-9.3 9-9.3 9z"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- ============ 1. LOADING SCREEN ============ -->
+  <div class="loader" id="loader" role="status" aria-live="polite">
+    <div class="loader__art">
+      <svg viewBox="0 0 120 120" class="loader__gift" aria-hidden="true">
+        <rect x="28" y="52" width="64" height="50" rx="6" class="gift-box"/>
+        <rect x="22" y="40" width="76" height="18" rx="5" class="gift-lid"/>
+        <rect x="55" y="40" width="10" height="62" class="gift-ribbon"/>
+        <path d="M60 40 C44 22 30 38 60 40 C90 38 76 22 60 40" class="gift-bow"/>
+      </svg>
+      <span class="loader__star loader__star--1">✦</span>
+      <span class="loader__star loader__star--2">✦</span>
+    </div>
+    <p class="loader__text">Preparing something special for you…</p>
+    <div class="loader__bar"><span class="loader__fill" id="loaderFill"></span></div>
+  </div>
+
+  <!-- ============ 2. OPENING GIFT SCREEN ============ -->
+  <section class="opening" id="opening" aria-label="Open your gift">
+    <div class="opening__inner">
+      <p class="opening__eyebrow">A little surprise</p>
+      <h1 class="opening__title">I made a little something for someone very special.</h1>
+      <div class="opening__gift" id="openingGift">
+        <svg viewBox="0 0 200 200" class="giftbox" aria-hidden="true">
+          <g class="giftbox__lid">
+            <rect x="34" y="58" width="132" height="26" rx="7" class="gift-lid"/>
+            <rect x="92" y="44" width="16" height="40" class="gift-ribbon"/>
+            <path d="M100 58 C72 26 44 54 100 58 C156 54 128 26 100 58" class="gift-bow"/>
+          </g>
+          <rect x="44" y="84" width="112" height="74" rx="8" class="gift-box"/>
+          <rect x="92" y="84" width="16" height="74" class="gift-ribbon"/>
+        </svg>
+        <span class="opening__sparkle">✦</span>
+      </div>
+      <button class="btn btn--primary opening__btn" id="openGiftBtn">Open Your Gift</button>
+      <p class="opening__hint">
+        <svg viewBox="0 0 24 24" class="i-inline" aria-hidden="true"><use href="#ic-volume"/></svg>
+        Turn up your volume for the full experience.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ FLOATING NAVIGATION ============ -->
+  <nav class="nav" id="nav" aria-label="Section navigation">
+    <ul class="nav__list">
+      <li><a class="nav__link" href="#hero" data-label="Home" aria-label="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-home"/></svg></a></li>
+      <li><a class="nav__link" href="#gallery" data-label="Gallery" aria-label="Gallery"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-gallery"/></svg></a></li>
+      <li><a class="nav__link" href="#wishes" data-label="Wishes" aria-label="Wishes"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-wish"/></svg></a></li>
+      <li><a class="nav__link" href="#game" data-label="Game" aria-label="Game"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-game"/></svg></a></li>
+      <li><a class="nav__link" href="#letter" data-label="Letter" aria-label="Letter"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-letter"/></svg></a></li>
+      <li><a class="nav__link" href="#gift" data-label="Gift" aria-label="Gift"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-gift"/></svg></a></li>
+      <li><a class="nav__link" href="#surprise" data-label="Surprise" aria-label="Surprise"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-surprise"/></svg></a></li>
+      <li><a class="nav__link" href="#invitation" data-label="Invitation" aria-label="Invitation"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-invite"/></svg></a></li>
+    </ul>
+  </nav>
+
+  <main id="main" class="main is-hidden">
+
+    <!-- ============ 3. HERO ============ -->
+    <section class="hero section" id="hero" aria-label="Birthday hero">
+      <div class="hero__decor" aria-hidden="true">
+        <svg class="hero__flower hero__flower--1" viewBox="0 0 200 200"><use href="#flower-single"/></svg>
+        <svg class="hero__flower hero__flower--2" viewBox="0 0 200 200"><use href="#flower-spray"/></svg>
+        <span class="spark spark--a">✦</span><span class="spark spark--b">✦</span><span class="spark spark--c">✦</span>
+      </div>
+      <div class="hero__photo-wrap reveal">
+        <div class="hero__halo" aria-hidden="true"></div>
+        <div class="hero__photo">
+          <img id="heroPhoto" alt="" loading="eager" decoding="async" />
+        </div>
+        <svg class="hero__photo-flower" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-single"/></svg>
+      </div>
+      <p class="hero__eyebrow reveal">Today is all about you.</p>
+      <h1 class="hero__title reveal" id="heroTitle">Happy Birthday</h1>
+      <p class="hero__sub reveal">For the person who is always there and makes me happy.</p>
+      <p class="hero__typed reveal"><span id="typedText"></span><span class="caret" aria-hidden="true">|</span></p>
+      <a class="btn btn--primary reveal" href="#greeting">See Your Birthday Gift</a>
+    </section>
+
+    <!-- ============ 4. GREETING ============ -->
+    <section class="section greeting" id="greeting" aria-label="A message for your day">
+      <div class="glass card greeting__card reveal">
+        <svg class="card__corner card__corner--tl" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-spray"/></svg>
+        <svg class="card__corner card__corner--br" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-spray"/></svg>
+        <p class="eyebrow">For your special day</p>
+        <h2 class="h2">A Little Message for Your Special Day</h2>
+        <p class="greeting__p">Happy birthday to the person who deserves so much happiness, peace, beautiful opportunities, and more reasons to smile.</p>
+        <p class="greeting__p">Today is not just about getting older. It is a celebration of how far you have come, everything you have survived, and the beautiful moments that are still waiting for you.</p>
+        <div class="greeting__more" id="greetingMore" hidden>
+          <p class="greeting__p greeting__p--accent">I hope this new chapter brings you closer to the life you have always dreamed of, and I hope it gives you more love, more strength, and more reasons to be truly happy.</p>
+        </div>
+        <button class="btn btn--ghost" id="greetingBtn" aria-expanded="false" aria-controls="greetingMore">Tap for More</button>
+      </div>
+    </section>
+
+    <!-- ============ 5. GALLERY ============ -->
+    <section class="section gallery" id="gallery" aria-label="Photo gallery">
+      <header class="section__head reveal">
+        <p class="eyebrow">Moments worth keeping</p>
+        <h2 class="h2">Happy Memories</h2>
+      </header>
+      <div class="gallery__grid" id="galleryGrid"></div>
+      <div class="gallery__actions reveal">
+        <button class="btn btn--ghost" id="playMemoriesBtn">Play the Memories</button>
+        <button class="btn btn--ghost" id="randomMemoryBtn">Show Me a Random Memory</button>
+      </div>
+      <p class="gallery__random-msg" id="randomMsg" role="status" aria-live="polite"></p>
+    </section>
+
+    <!-- ============ 6. WISHES ============ -->
+    <section class="section wishes" id="wishes" aria-label="Birthday wishes">
+      <header class="section__head reveal">
+        <p class="eyebrow">Sent straight from the heart</p>
+        <h2 class="h2">My Birthday Wishes for You</h2>
+      </header>
+      <div class="wishes__row" id="wishesRow"></div>
+      <p class="wishes__progress" id="wishesProgress" role="status" aria-live="polite">You have opened 0 of 3 birthday wishes.</p>
+      <p class="wishes__done" id="wishesDone" hidden>All the wishes are now open. The next step is watching them become real.</p>
+    </section>
+
+    <!-- ============ 7. MINI GAME ============ -->
+    <section class="section game" id="game" aria-label="Birthday mini game">
+      <header class="section__head reveal">
+        <p class="eyebrow">A playful little break</p>
+        <h2 class="h2">Catch the Birthday Surprises</h2>
+        <p class="muted">Tap the floating surprises before the time runs out.</p>
+      </header>
+      <div class="glass game__panel reveal">
+        <div class="game__hud">
+          <div class="game__stat"><span class="game__stat-label">Score</span><span class="game__stat-val" id="gameScore">0</span></div>
+          <div class="game__stat"><span class="game__stat-label">Time</span><span class="game__stat-val" id="gameTime">20</span></div>
+          <div class="game__stat"><span class="game__stat-label">Best</span><span class="game__stat-val" id="gameBest">0</span></div>
+        </div>
+        <div class="game__arena" id="gameArena">
+          <p class="game__hint" id="gameHint">Press Start and catch the surprises.</p>
+        </div>
+        <div class="game__controls">
+          <button class="btn btn--primary" id="gameStart">Start</button>
+          <button class="btn btn--ghost" id="gamePause" disabled>Pause</button>
+          <button class="btn btn--ghost" id="gameSound" aria-pressed="true">Sound: On</button>
+        </div>
+        <p class="game__result" id="gameResult" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- ============ 9. DIGITAL LETTER ============ -->
+    <section class="section letter" id="letter" aria-label="Birthday letter">
+      <header class="section__head reveal">
+        <p class="eyebrow">Words I wanted you to keep</p>
+        <h2 class="h2">A Birthday Letter for You</h2>
+        <p class="muted" id="letterHint">Tap the envelope to open your letter.</p>
+      </header>
+
+      <div class="envelope" id="letterEnvelope" tabindex="0" role="button" aria-label="Open your birthday letter">
+        <div class="envelope__back"></div>
+        <div class="envelope__letter" id="letterPaper">
+          <svg class="card__corner card__corner--tl" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-spray"/></svg>
+          <div class="letter__text" id="letterText"></div>
+          <div class="letter__actions">
+            <button class="btn btn--ghost btn--sm" id="letterAgain">Read It Again</button>
+            <button class="btn btn--ghost btn--sm" id="letterClose">Close the Letter</button>
+          </div>
+        </div>
+        <div class="envelope__front"></div>
+        <div class="envelope__flap"><span class="envelope__seal" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-heart"/></svg></span></div>
+      </div>
+    </section>
+
+    <!-- ============ 10. GIFT VOUCHERS ============ -->
+    <section class="section vouchers" id="gift" aria-label="Birthday gift vouchers">
+      <header class="section__head reveal">
+        <p class="eyebrow">Pick a little something</p>
+        <h2 class="h2">Choose Your Birthday Gift</h2>
+        <p class="muted">You may choose one special birthday voucher.</p>
+      </header>
+      <div class="vouchers__row" id="vouchersRow"></div>
+      <div class="vouchers__actions reveal">
+        <button class="btn btn--ghost" id="voucherReset" hidden>Change My Choice</button>
+        <button class="btn btn--primary" id="voucherSave" hidden>Save My Voucher</button>
+      </div>
+    </section>
+
+    <!-- ============ 11. FINAL SURPRISE ============ -->
+    <section class="section surprise" id="surprise" aria-label="Final surprise">
+      <header class="section__head reveal">
+        <p class="eyebrow">One more thing</p>
+        <h2 class="h2">A Final Surprise</h2>
+      </header>
+      <button class="btn btn--primary btn--lg reveal" id="surpriseBtn">Click for Your Final Surprise</button>
+    </section>
+
+    <!-- ============ 12. INVITATION ============ -->
+    <section class="section invitation" id="invitation" aria-label="Birthday invitation">
+      <div class="invitation__pre" id="invitationPre">
+        <header class="section__head reveal">
+          <p class="eyebrow">One last surprise</p>
+          <h2 class="h2">One Last Surprise</h2>
+        </header>
+        <div class="envelope envelope--invite reveal" id="inviteEnvelope" tabindex="0" role="button" aria-label="Open the invitation">
+          <div class="envelope__back"></div>
+          <div class="envelope__front"></div>
+          <div class="envelope__flap"><span class="envelope__seal" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#ic-heart"/></svg></span></div>
+        </div>
+        <button class="btn btn--primary reveal" id="openInviteBtn">Open the Invitation</button>
+      </div>
+
+      <article class="glass invite-card" id="inviteCard" hidden>
+        <svg class="card__corner card__corner--tl" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-spray"/></svg>
+        <svg class="card__corner card__corner--tr" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-single"/></svg>
+        <svg class="card__corner card__corner--bl" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-single"/></svg>
+        <svg class="card__corner card__corner--br" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-spray"/></svg>
+
+        <p class="eyebrow">Birthday Invitation</p>
+        <h2 class="invite-card__title">You Are Invited to Celebrate</h2>
+        <p class="invite-card__name" id="inviteName">A Birthday</p>
+        <div class="invite-card__rule" aria-hidden="true"><span>✦</span></div>
+
+        <div class="invite-card__grid">
+          <div class="info-card"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-calendar"/></svg><div><span class="info-card__label">Date</span><span class="info-card__val" id="invDate">—</span></div></div>
+          <div class="info-card"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-clock"/></svg><div><span class="info-card__label">Time</span><span class="info-card__val" id="invTime">—</span></div></div>
+          <div class="info-card"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-location"/></svg><div><span class="info-card__label">Venue</span><span class="info-card__val" id="invVenue">—</span></div></div>
+          <div class="info-card"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-dress"/></svg><div><span class="info-card__label">Dress Code</span><span class="info-card__val" id="invDress">—</span></div></div>
+        </div>
+
+        <p class="invite-card__note">Your presence will make this celebration even more special.</p>
+        <p class="invite-card__secret">Please keep this invitation and the plan a little secret.</p>
+
+        <div class="invite-card__actions">
+          <a class="btn btn--ghost btn--sm" id="invWaBtn" target="_blank" rel="noopener">Confirm Attendance</a>
+          <a class="btn btn--ghost btn--sm" id="invCalBtn" target="_blank" rel="noopener">Save to Calendar</a>
+          <button class="btn btn--primary btn--sm" id="invSaveBtn">Save Invitation</button>
+        </div>
+      </article>
+    </section>
+
+    <!-- ============ 13. FOOTER ============ -->
+    <footer class="footer" id="footer">
+      <svg class="footer__flower" viewBox="0 0 200 200" aria-hidden="true"><use href="#flower-spray"/></svg>
+      <p class="footer__line" id="footerMade">Made with love</p>
+      <p class="footer__line footer__line--sub" id="footerFor">Created especially for your birthday.</p>
+      <p class="footer__date" id="footerDate"></p>
+      <div class="footer__actions">
+        <a class="btn btn--ghost btn--sm" href="#hero">Back to the Beginning</a>
+        <button class="btn btn--ghost btn--sm" id="footerMusic">Pause Music</button>
+        <button class="btn btn--ghost btn--sm" id="footerReset">Reset Website</button>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ============ 8. MUSIC PLAYER ============ -->
+  <aside class="player glass" id="player" aria-label="Music player" hidden>
+    <button class="player__toggle" id="playerToggle" aria-label="Collapse player">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-music-note"/></svg>
+      <svg viewBox="0 0 24 24" class="player__note" aria-hidden="true"><path fill="currentColor" d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5" fill="currentColor"/><circle cx="16.5" cy="16" r="2.5" fill="currentColor"/></svg>
+    </button>
+    <div class="player__body">
+      <div class="player__top">
+        <img class="player__cover" id="playerCover" alt="" />
+        <div class="player__meta">
+          <span class="player__song" id="playerSong">—</span>
+          <span class="player__artist" id="playerArtist">—</span>
+          <span class="player__tag">A little playlist for your special day.</span>
+        </div>
+      </div>
+      <div class="player__progress">
+        <span class="player__time" id="playerCur">0:00</span>
+        <input type="range" id="playerSeek" class="player__seek" min="0" max="100" value="0" aria-label="Seek" />
+        <span class="player__time" id="playerDur">0:00</span>
+      </div>
+      <div class="player__controls">
+        <button class="player__btn" id="playerPrev" aria-label="Previous song"><svg viewBox="0 0 24 24"><use href="#ic-prev"/></svg></button>
+        <button class="player__btn player__btn--play" id="playerPlay" aria-label="Play"><svg viewBox="0 0 24 24"><use href="#ic-play"/></svg></button>
+        <button class="player__btn" id="playerNext" aria-label="Next song"><svg viewBox="0 0 24 24"><use href="#ic-next"/></svg></button>
+        <button class="player__btn" id="playerMute" aria-label="Mute"><svg viewBox="0 0 24 24"><use href="#ic-volume"/></svg></button>
+        <input type="range" id="playerVol" class="player__vol" min="0" max="100" value="70" aria-label="Volume" />
+      </div>
+    </div>
+    <audio id="audio" preload="none"></audio>
+  </aside>
+
+  <!-- ============ LIGHTBOX (gallery fullscreen) ============ -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
+    <button class="lightbox__close" id="lbClose" aria-label="Close"><svg viewBox="0 0 24 24"><use href="#ic-close"/></svg></button>
+    <button class="lightbox__nav lightbox__nav--prev" id="lbPrev" aria-label="Previous photo"><svg viewBox="0 0 24 24"><use href="#ic-prev"/></svg></button>
+    <figure class="lightbox__figure">
+      <img id="lbImg" alt="" />
+      <figcaption class="lightbox__cap"><span id="lbCaption"></span><span class="lightbox__date" id="lbDate"></span></figcaption>
+    </figure>
+    <button class="lightbox__nav lightbox__nav--next" id="lbNext" aria-label="Next photo"><svg viewBox="0 0 24 24"><use href="#ic-next"/></svg></button>
+  </div>
+
+  <!-- ============ SURPRISE OVERLAY ============ -->
+  <div class="cinema" id="cinema" hidden aria-hidden="true">
+    <div class="cinema__stars" id="cinemaStars" aria-hidden="true"></div>
+    <img class="cinema__photo" id="cinemaPhoto" alt="" />
+    <p class="cinema__msg" id="cinemaMsg"></p>
+    <div class="cinema__hug" id="cinemaHug" hidden aria-hidden="true">
+      <svg viewBox="0 0 200 160"><use href="#ic-heart-big"/></svg>
+    </div>
+    <div class="cinema__actions" id="cinemaActions" hidden>
+      <button class="btn btn--ghost btn--sm" id="hugBtn">Send a Virtual Hug</button>
+      <button class="btn btn--ghost btn--sm" id="surpriseAgain">Play the Surprise Again</button>
+      <button class="btn btn--primary btn--sm" id="cinemaClose">Continue to Invitation</button>
+    </div>
+  </div>
+
+  <!-- heart-big symbol for hug -->
+  <svg width="0" height="0" aria-hidden="true"><defs>
+    <symbol id="ic-heart-big" viewBox="0 0 200 160"><path fill="currentColor" d="M100 150S20 104 20 56C20 30 40 14 62 18c16 3 30 16 38 28 8-12 22-25 38-28 22-4 42 12 42 38 0 48-80 94-80 94z"/></symbol>
+    <symbol id="ic-music-note" viewBox="0 0 24 24"><path fill="currentColor" d="M9 18V6l10-2v12"/></symbol>
+  </defs></svg>
+
+  <!-- toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
